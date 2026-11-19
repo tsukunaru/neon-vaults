@@ -1,0 +1,191 @@
+{
+  "version": 1,
+  "source": "reports/level-pilot-candidates.json",
+  "changedIds": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    20,
+    86,
+    181,
+    201
+  ],
+  "keptIds": [
+    19,
+    141
+  ],
+  "levels": [
+    {
+      "id": 5,
+      "verdict": "REPLACED",
+      "candidateId": "5-20260830-28",
+      "score": 100.8,
+      "layoutHash": "dfb034a274494afee9121c4fcbb1b8d9d7beeea8cfb7ebf3e88b902486055aa9",
+      "revision": 2
+    },
+    {
+      "id": 6,
+      "verdict": "REPLACED",
+      "candidateId": "6-20260830-6",
+      "score": 106.857,
+      "layoutHash": "e4e404d735a19d850e874069e695e433a2e347992a0697140fd79a921d63450a",
+      "revision": 2
+    },
+    {
+      "id": 7,
+      "verdict": "REPLACED",
+      "candidateId": "7-20260830-22",
+      "score": 103.675,
+      "layoutHash": "e32f0784b708cb201454a48c688af32018042cd1ed230b6b1aeff5ca86286845",
+      "revision": 2
+    },
+    {
+      "id": 8,
+      "verdict": "REPLACED",
+      "candidateId": "8-20260830-6",
+      "score": 106.361,
+      "layoutHash": "f37869e0405e717f234071766ad04813c2809d8551d788a02b906de74036c323",
+      "revision": 2
+    },
+    {
+      "id": 9,
+      "verdict": "REPLACED",
+      "candidateId": "9-20260830-15",
+      "score": 108.043,
+      "layoutHash": "3cae7ec02b273f2bad13379a4d8d41d0e7c38c8b5e705bfc12c84f574ebf2d00",
+      "revision": 2
+    },
+    {
+      "id": 10,
+      "verdict": "REPLACED",
+      "candidateId": "10-20260830-20",
+      "score": 102.204,
+      "layoutHash": "886d33a9917d2aa2dce1b59c5004c8e047d3a8f4a09789e34a20a9d0646f9c1e",
+      "revision": 2
+    },
+    {
+      "id": 11,
+      "verdict": "REPLACED",
+      "candidateId": "11-20260830-22",
+      "score": 118.179,
+      "layoutHash": "97ec137ddff53fc101175831c97d1be76be0a60ddaa76485704ff207234b570f",
+      "revision": 2
+    },
+    {
+      "id": 12,
+      "verdict": "REPLACED",
+      "candidateId": "12-20260830-14",
+      "score": 117.51,
+      "layoutHash": "92c8bb524db8a6a05259d0995091ac9af83a9bb2b1aec91e344c55bd07eb5025",
+      "revision": 2
+    },
+    {
+      "id": 13,
+      "verdict": "REPLACED",
+      "candidateId": "13-20260830-5",
+      "score": 113.839,
+      "layoutHash": "96152e45bb369131eb04242762995549d2137edf5e1c8f618aea2b9ad8fd22b4",
+      "revision": 2
+    },
+    {
+      "id": 14,
+      "verdict": "REPLACED",
+      "candidateId": "14-20260830-2",
+      "score": 114.39,
+      "layoutHash": "0c3e1a72bef0cefa3d99f19a1552f6fc77108abc44e4585be4632ed839f972f0",
+      "revision": 2
+    },
+    {
+      "id": 15,
+      "verdict": "REPLACED",
+      "candidateId": "15-20260830-7",
+      "score": 122.338,
+      "layoutHash": "85d3116bf6e1860f07264dc604bec6ed1c04786f263778f472b66a0f0669ab8a",
+      "revision": 2
+    },
+    {
+      "id": 16,
+      "verdict": "REPLACED",
+      "candidateId": "16-20260830-24",
+      "score": 114.63,
+      "layoutHash": "a04508c6503d1e4cfc2a6cac87287792d7fe9515d9ade0c9007ac02d17838ff5",
+      "revision": 2
+    },
+    {
+      "id": 17,
+      "verdict": "REPLACED",
+      "candidateId": "17-20260830-24",
+      "score": 122.585,
+      "layoutHash": "cd330cb00f14d821fbe2f7ccd7b7632f743cd7ec2d5812c1f84161feac7a017d",
+      "revision": 2
+    },
+    {
+      "id": 18,
+      "verdict": "REPLACED",
+      "candidateId": "18-20260830-31",
+      "score": 114.034,
+      "layoutHash": "07d7d5ed8381cbf7e4ffd5f6f6cc2b11ff6d851a597fa3e3622bd8fcf0bd63d9",
+      "revision": 2
+    },
+    {
+      "id": 19,
+      "verdict": "KEEP_CURRENT",
+      "candidateId": null,
+      "score": 118.279,
+      "layoutHash": "b3cf3dc270cadd77a4e42485775d2bd0b33e43771e6788cf5b24245d923c5da1",
+      "revision": 1
+    },
+    {
+      "id": 20,
+      "verdict": "REPLACED",
+      "candidateId": "20-20260830-8",
+      "score": 125.462,
+      "layoutHash": "adbe7fdfb6bb7e1f6c3d209986b743f6bbe643bdbe41df4546f740219125f832",
+      "revision": 2
+    },
+    {
+      "id": 86,
+      "verdict": "REPLACED",
+      "candidateId": "86-20260830-25",
+      "score": 129.662,
+      "layoutHash": "cc2267afdfcd3232622f75453acc78e5cac8630e9b884de723b44a89a48d8634",
+      "revision": 2
+    },
+    {
+      "id": 141,
+      "verdict": "KEEP_CURRENT",
+      "candidateId": null,
+      "score": 132.749,
+      "layoutHash": "0f2707ca22818c92e6a3f9a579049c4addd4941d52621e1b14e8156248455f19",
+      "revision": 1
+    },
+    {
+      "id": 181,
+      "verdict": "REPLACED",
+      "candidateId": "181-20260830-8",
+      "score": 141.326,
+      "layoutHash": "f22a17878ff139d6f933988649c0b4ffd30255f7d976a9829995d22c1172b317",
+      "revision": 2
+    },
+    {
+      "id": 201,
+      "verdict": "REPLACED",
+      "candidateId": "201-20260830-26",
+      "score": 147.027,
+      "layoutHash": "fa549740a77d737dd7f22d7ffc5b7e1568edf0ae7050cd532398535b48fb4c6b",
+      "revision": 2
+    }
+  ],
+  "campaignHash": "7ca9f7d0799ceb08c255f6c9a0dfed432fcf024b376344fdf2581333ec7a6ee5"
+}

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Neon Vaults — Pilot Review</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: #05060d; color: #e7f9ff; font: 14px/1.45 system-ui, sans-serif; }
+    body { display: grid; grid-template-columns: minmax(320px, 1fr) minmax(260px, 360px); min-height: 100vh; }
+    main { min-height: 0; display: grid; place-items: center; padding: 12px; }
+    canvas { width: min(100%, 900px); height: min(82vh, 900px); border: 1px solid #1d6080; background: #050917; touch-action: none; }
+    aside { padding: 18px; background: #0a1020; border-left: 1px solid #193553; overflow: auto; }
+    h1 { margin: 0 0 4px; font-size: 20px; color: #36e4ff; }
+    .muted { color: #8fb2c5; }
+    label { display: block; margin-top: 14px; color: #8fb2c5; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+    select, button { width: 100%; min-height: 42px; margin-top: 6px; border: 1px solid #28698a; background: #111d35; color: #effcff; padding: 8px 10px; }
+    button { cursor: pointer; font-weight: 700; }
+    button:hover { border-color: #36e4ff; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    #metrics { margin-top: 14px; padding: 12px; background: #070c17; border: 1px solid #172b49; white-space: pre-wrap; font-family: ui-monospace, monospace; }
+    #status { min-height: 42px; margin-top: 12px; color: #ffe45c; }
+    #route { word-break: break-word; color: #b9f4ff; }
+    @media (max-width: 760px) { body { display: block; } main { height: 58vh; } canvas { height: 100%; } aside { border: 0; border-top: 1px solid #193553; } }
+  </style>
+</head>
+<body>
+  <main><canvas id="board" aria-label="Игровое поле"></canvas></main>
+  <aside>
+    <h1>Эталонные уровни</h1>
+    <div class="muted">Текущий уровень и три кандидата. Стрелки/WASD или свайп.</div>
+    <label for="level">Уровень</label>
+    <select id="level"></select>
+    <label for="variant">Вариант</label>
+    <select id="variant"></select>
+    <div class="row"><button id="restart">Заново</button><button id="play">▶ Optimal</button></div>
+    <div class="row"><button id="previous">← Уровень</button><button id="next">Уровень →</button></div>
+    <div id="status"></div>
+    <div id="metrics"></div>
+    <p class="muted">Optimal route: <span id="route"></span></p>
+  </aside>
+  <script type="module">
+    import { NeonGame } from "../src/game.js";
+    import { Renderer } from "../src/renderer.js";
+    import { LEVELS } from "../src/levels.js";
+    import { SKINS } from "../src/skins.js";
+
+    const productionMode = new URLSearchParams(location.search).has("production");
+    const report = await fetch(productionMode ? "../reports/final-campaign-report.json" : "../reports/level-pilot-candidates.json").then((response) => {
+      if (!response.ok) throw new Error("Сначала запустите npm run levels:pilot");
+      return response.json();
+    });
+    const elements = Object.fromEntries(["board", "level", "variant", "restart", "play", "previous", "next", "status", "metrics", "route"]
+      .map((id) => [id, document.getElementById(id)]));
+    const silentAudio = new Proxy({}, { get: () => () => {} });
+    let playback = 0;
+    let activeVariant;
+    const game = new NeonGame(silentAudio, {
+      onWin: (result) => { elements.status.textContent = `Пройдено: ${result.dashes} рывков, PAR ${result.par}`; },
+      onDeath: () => { elements.status.textContent = "Столкновение. Нажмите «Заново»."; },
+    });
+    const renderer = new Renderer(elements.board);
+
+    const entries = productionMode ? report.levels.map((entry) => ({
+      ...entry, recommendation: entry.verdict, baseline: { metrics: entry.metrics }, candidates: [],
+    })) : report.levels;
+    for (const entry of entries) elements.level.add(new Option(`${entry.id} · ${entry.recommendation}`, entry.id));
+
+    function selected() {
+      const entry = entries.find((item) => item.id === Number(elements.level.value));
+      const index = Number(elements.variant.value);
+      return index < 0
+        ? { entry, label: "CURRENT", level: LEVELS[entry.id - 1], metrics: entry.baseline.metrics }
+        : { entry, label: entry.candidates[index].candidateId, ...entry.candidates[index] };
+    }
+
+    function fillVariants() {
+      const entry = entries.find((item) => item.id === Number(elements.level.value));
+      elements.variant.replaceChildren(new Option("CURRENT · production", -1));
+      entry.candidates.forEach((candidate, index) => elements.variant.add(new Option(`Candidate ${String.fromCharCode(65 + index)} · score ${candidate.score}`, index)));
+      elements.variant.value = !productionMode && entry.recommendation === "REVIEW_CANDIDATES" ? "0" : "-1";
+    }
+
+    function load() {
+      playback += 1;
+      const item = selected();
+      activeVariant = item;
+      game.load(structuredClone(item.level), SKINS[0]);
+      game.showGrid = true;
+      const metrics = item.metrics;
+      elements.status.textContent = `${item.label} · ${item.entry.recommendation}`;
+      elements.metrics.textContent = [
+        `optimalPathLength  ${metrics.optimalPathLength}`,
+        `decisionPoints     ${metrics.decisionPoints}`,
+        `forcedMoveRatio    ${metrics.forcedMoveRatio}`,
+        `linearityScore     ${metrics.linearityScore}`,
+        `masteryGap         ${metrics.masteryGap}`,
+        `RandomSafe         ${metrics.randomSafe?.successRate ?? "—"}`,
+        `GreedyExit         ${metrics.greedyExit?.success ? `${metrics.greedyExit.dashes} dashes` : "fail"}`,
+        `graph similarity   ${item.closestCampaignMatch?.similarity ?? "baseline"}`,
+      ].join("\n");
+      elements.route.textContent = metrics.optimalSolution.join(" → ");
+    }
+
+    async function playOptimal() {
+      load();
+      const token = playback;
+      for (const direction of activeVariant.metrics.optimalSolution) {
+        if (token !== playback || game.state !== "playing") return;
+        game.input(direction);
+        while (token === playback && game.player.direction && game.state === "playing") await new Promise((resolve) => setTimeout(resolve, 16));
+      }
+    }
+
+    elements.level.addEventListener("change", () => { fillVariants(); load(); });
+    elements.variant.addEventListener("change", load);
+    elements.restart.addEventListener("click", load);
+    elements.play.addEventListener("click", playOptimal);
+    elements.previous.addEventListener("click", () => { elements.level.selectedIndex = Math.max(0, elements.level.selectedIndex - 1); fillVariants(); load(); });
+    elements.next.addEventListener("click", () => { elements.level.selectedIndex = Math.min(elements.level.options.length - 1, elements.level.selectedIndex + 1); fillVariants(); load(); });
+    addEventListener("keydown", (event) => {
+      const directions = { ArrowUp: "up", KeyW: "up", ArrowRight: "right", KeyD: "right", ArrowDown: "down", KeyS: "down", ArrowLeft: "left", KeyA: "left" };
+      if (directions[event.code]) { event.preventDefault(); playback += 1; game.input(directions[event.code]); }
+    });
+    let pointer = null;
+    elements.board.addEventListener("pointerdown", (event) => { pointer = [event.clientX, event.clientY]; });
+    elements.board.addEventListener("pointerup", (event) => {
+      if (!pointer) return;
+      const dx = event.clientX - pointer[0]; const dy = event.clientY - pointer[1]; pointer = null;
+      if (Math.hypot(dx, dy) < 18) return;
+      playback += 1;
+      game.input(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up"));
+    });
+    addEventListener("resize", () => renderer.resize());
+
+    const requestedLevel = Number(new URLSearchParams(location.search).get("level"));
+    if (entries.some((entry) => entry.id === requestedLevel)) elements.level.value = String(requestedLevel);
+    fillVariants(); load();
+    let previousTime = performance.now();
+    requestAnimationFrame(function frame(now) {
+      game.update((now - previousTime) / 1000); previousTime = now;
+      renderer.draw(game, now);
+      requestAnimationFrame(frame);
+    });
+  </script>
+</body>
+</html>

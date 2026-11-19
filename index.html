@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#05060d">
+  <meta name="description" content="A neon dash-maze puzzle with 250 original levels." data-i18n-content="metaDescription">
+  <title data-i18n="title">Neon Vaults</title>
+  <script>(function(d,w){var c=w.CSS,s=c&&c.supports;if(!s||!s.call(c,"display","grid")||!s.call(c,"color","var(--nv-probe)"))d.documentElement.className+=" legacy-layout"})(document,window);</script>
+  <script src="/sdk.js"></script>
+  <link rel="stylesheet" href="dist/styles.css">
+</head>
+<body>
+  <div id="loading" class="loading-screen" aria-live="polite">
+    <div class="boot-logo" aria-hidden="true"><i></i><i></i></div>
+    <div class="loading-track"><span></span></div>
+  </div>
+
+  <div id="app" class="app is-loading">
+    <header id="hud" class="hud">
+      <button id="map-button" class="icon-button" aria-label="Map" data-i18n-aria="map">⌘</button>
+      <div class="hud-level"><small id="hud-level-label" data-i18n="level">LEVEL</small><strong id="hud-level">1</strong></div>
+      <div class="hud-progress"><span class="dot-symbol">◆</span><strong id="hud-dots">0/0</strong><i><b id="hud-progress-fill"></b></i></div>
+      <div class="hud-wallet"><span>⬡</span><strong id="hud-coins">0</strong></div>
+      <div class="hud-vault"><span>✦</span><strong id="hud-vault-coins">0</strong></div>
+      <button id="restart-button" class="icon-button" aria-label="Restart" data-i18n-aria="restart">↻</button>
+      <button id="settings-button" class="icon-button" aria-label="Settings" data-i18n-aria="settings">⚙</button>
+    </header>
+
+    <main class="stage">
+      <canvas id="game-canvas" aria-label="Neon maze game field" data-i18n-aria="gameCanvas"></canvas>
+      <div id="par-badge" class="par-badge">◆◆◆ <span data-i18n="par">PAR</span>: <b>0</b></div>
+      <div id="rush-hud" class="rush-hud hidden"><span><small data-i18n="rushTime">TIME</small><b id="rush-time">45.0</b></span><span><small data-i18n="rushScore">SCORE</small><b id="rush-score">0</b></span><span><small data-i18n="rushMultiplier">MULTIPLIER</small><b id="rush-multiplier">×1.00</b></span><span><small data-i18n="rushStreak">STREAK</small><b id="rush-streak">0</b></span><span><small data-i18n="rushSecurity">SECURITY</small><b id="rush-security">01</b></span></div>
+      <div id="tutorial" class="tutorial-hint hidden">
+        <span id="tutorial-hand" class="tutorial-hand">☝</span>
+        <strong id="tutorial-text"></strong>
+      </div>
+      <button id="mechanic-tutorial" class="mechanic-tutorial hidden" type="button" aria-live="polite">
+        <span id="mechanic-tutorial-icon" aria-hidden="true">◆</span><span><strong id="mechanic-tutorial-title"></strong><small id="mechanic-tutorial-body"></small></span><i>×</i>
+      </button>
+      <div id="toast" class="toast hidden" role="status"></div>
+    </main>
+
+    <nav id="game-nav" class="game-nav">
+      <button id="nav-map"><span>⌘</span><small data-i18n="map">MAP</small></button>
+      <button id="nav-daily"><span>◈</span><small data-i18n="daily">DAILY</small></button>
+      <button id="nav-hint"><span>⌁</span><small data-i18n="hintAd">HINT · AD</small></button>
+      <button id="nav-skins"><span>◇</span><small data-i18n="skins">SKINS</small></button>
+      <button id="nav-modes"><span>▦</span><small data-i18n="modes">MODES</small></button>
+    </nav>
+
+    <section id="home-screen" class="screen home-screen active" aria-label="Home" data-i18n-aria="home">
+      <div class="home-hero">
+        <img class="hero-image" src="assets/ui/hero.webp" alt="" aria-hidden="true">
+        <div class="home-shade"></div>
+        <div class="home-title"><small data-i18n="homeStatus">SPARK // ONLINE</small><h1 data-i18n="title">Neon Vaults</h1><p data-i18n="homeTagline">Dash. Wall. Next swipe.</p></div>
+      </div>
+      <div class="home-wallet"><span>⬡ <b id="home-coins">0</b></span><span>✦ <b id="home-vault-coins">0</b></span></div>
+      <button id="home-continue" class="primary-button"><span data-i18n="continue">CONTINUE</span><b id="home-level">1</b></button>
+      <div class="home-actions"><button id="home-map" class="secondary-button"><span>⌘</span><b data-i18n="map">MAP</b></button><button id="home-modes" class="secondary-button"><span>▦</span><b data-i18n="modes">MODES</b></button><button id="home-skins" class="secondary-button"><span>◇</span><b data-i18n="skins">SKINS</b></button></div>
+      <button id="home-settings" class="secondary-button home-settings"><span>⚙</span><b data-i18n="settings">SETTINGS</b></button>
+    </section>
+
+    <section id="daily-screen" class="screen compact-screen daily-screen" aria-label="Daily activities" data-i18n-aria="dailyCenter">
+      <div class="screen-header"><button class="back-button" data-close-screen aria-label="Back" data-i18n-aria="back">‹</button><div><small data-i18n="daily">DAILY</small><h2 data-i18n="dailyCenter">DAILY ACTIVITIES</h2></div></div>
+      <div class="daily-mission"><div><small data-i18n="dailyMission">DAILY MISSION</small><strong id="mission-title"></strong></div><div class="mission-line"><span id="mission-progress">0/3</span><button id="mission-claim" class="mission-claim" data-i18n="claim">CLAIM</button></div></div>
+      <section class="daily-run" aria-label="Daily level" data-i18n-aria="dailyLevel"><div class="daily-run-head"><div><small data-i18n="dailyLevel">DAILY LEVEL</small><strong><span id="daily-date"></span> · <span id="daily-source"></span></strong></div><button id="home-daily" class="primary-button" data-i18n="playDaily">PLAY TODAY</button></div><div class="daily-best"><span data-i18n="dailyBest">Best score</span><b id="daily-best"></b></div><div id="yandex-auth" class="yandex-auth"><p data-i18n="signInBody">Sync progress across devices and join the leaderboard</p><button id="yandex-login" class="secondary-button" data-i18n="signIn">SIGN IN</button></div><div class="leaderboard-head"><strong data-i18n="leaderboard">LEADERBOARD</strong><button id="leaderboard-refresh" class="text-button" aria-label="Refresh leaderboard" data-i18n-aria="refreshLeaderboard">↻</button></div><ol id="leaderboard-list" class="leaderboard-list"><li class="empty-leaderboard" data-i18n="noScores">No scores yet</li></ol></section>
+    </section>
+
+    <section id="modes-screen" class="screen compact-screen modes-screen" aria-label="Modes" data-i18n-aria="modes">
+      <div class="screen-header"><button class="back-button" data-close-screen aria-label="Back" data-i18n-aria="back">‹</button><div><small data-i18n="gameModes">GAME MODES</small><h2 data-i18n="modes">MODES</h2></div></div>
+      <div class="modes-grid">
+        <article class="mode-card mode-card-available">
+          <div class="mode-card-head"><span aria-hidden="true">⚡</span><div><small data-i18n="available">AVAILABLE</small><h3 data-i18n="vaultRush">VAULT RUSH</h3></div></div>
+          <p data-i18n="rushDescription">Clear short vault rooms before the trace timer expires. Perfect routes build your multiplier.</p>
+          <div class="mode-best"><small data-i18n="rushBest">BEST SCORE</small><b id="modes-rush-best">0</b></div>
+          <button id="open-rush" class="primary-button" data-i18n="play">PLAY</button>
+        </article>
+      </div>
+    </section>
+
+    <section id="rush-screen" class="screen compact-screen rush-screen" aria-label="Vault Rush" data-i18n-aria="vaultRush">
+      <div class="screen-header"><button class="back-button" data-close-screen aria-label="Back" data-i18n-aria="back">‹</button><div><small data-i18n="rushKicker">OVERLOAD // TRACE</small><h2 data-i18n="vaultRush">VAULT RUSH</h2></div></div>
+      <div class="rush-panel"><div class="rush-mark" aria-hidden="true">⚡</div><p data-i18n="rushDescription">Clear short vault rooms before the trace timer expires. Perfect routes build your multiplier.</p><div class="rush-records"><span><small data-i18n="rushBest">BEST SCORE</small><b id="rush-best">0</b></span><span><small data-i18n="rushRuns">RUNS</small><b id="rush-runs">0</b></span><span><small data-i18n="rushRooms">ROOMS</small><b id="rush-rooms">0</b></span></div><button id="rush-start" class="primary-button" data-i18n="startRush">START RUSH</button></div>
+      <div id="rush-auth" class="yandex-auth"><p data-i18n="signInBody">Sync progress across devices and join the leaderboard</p><button id="rush-login" class="secondary-button" data-i18n="signIn">SIGN IN</button></div>
+      <section class="rush-leaderboard" aria-label="Rush leaderboard" data-i18n-aria="rushLeaderboard"><div class="leaderboard-head"><strong data-i18n="rushLeaderboard">RUSH LEADERBOARD</strong><button id="rush-leaderboard-refresh" class="text-button" aria-label="Refresh leaderboard" data-i18n-aria="refreshLeaderboard">↻</button></div><ol id="rush-leaderboard-list" class="leaderboard-list"><li class="empty-leaderboard" data-i18n="noScores">No scores yet</li></ol></section>
+    </section>
+
+    <section id="map-screen" class="screen map-screen" aria-label="Map" data-i18n-aria="map">
+      <div class="screen-header"><button class="back-button" data-close-screen aria-label="Back" data-i18n-aria="back">‹</button><div><small data-i18n="journey">SPARK'S JOURNEY</small><h2 data-i18n="map">MAP</h2></div></div>
+      <div class="map-stats">
+        <div><small data-i18n="cores">CORES</small><strong id="map-cores">0/750</strong></div>
+        <div><small data-i18n="coins">COINS</small><strong id="map-coins">0</strong></div>
+        <div><small data-i18n="vaultCoins">CRYSTALS</small><strong id="map-vault-coins">0</strong></div>
+        <div><small data-i18n="skins">SKINS</small><strong id="map-skins">1/44</strong></div>
+      </div>
+      <div class="player-stats" aria-label="Player statistics" data-i18n-aria="playerStats">
+        <div><small data-i18n="completedLevels">LEVELS</small><strong id="stats-completions">0</strong></div>
+        <div><small data-i18n="perfectRuns">PERFECT</small><strong id="stats-perfects">0</strong></div>
+        <div><small data-i18n="deaths">DEATHS</small><strong id="stats-deaths">0</strong></div>
+        <div><small data-i18n="bestStreak">BEST STREAK</small><strong id="stats-best-streak">0</strong></div>
+        <div><small data-i18n="energyDots">DOTS</small><strong id="stats-dots">0</strong></div>
+      </div>
+      <button id="continue-button" class="primary-button"><span data-i18n="continue">CONTINUE</span><b id="continue-level">1</b></button>
+      <div class="map-actions"><button id="map-modes-button" class="secondary-button" data-i18n="modes">MODES</button><button id="map-skins-button" class="secondary-button" data-i18n="skins">SKINS</button></div>
+      <div class="zone-nav"><button id="map-zone-prev" aria-label="Previous sector" data-i18n-aria="previousSector">‹</button><div><small data-i18n="floor">SECTOR</small><strong id="map-zone-name"></strong><span id="map-zone-range"></span></div><button id="map-zone-next" aria-label="Next sector" data-i18n-aria="nextSector">›</button></div>
+      <div class="map-world"><i class="world-orb orb-a"></i><i class="world-orb orb-b"></i><i class="world-spire spire-a"></i><i class="world-spire spire-b"></i><div id="level-map" class="level-map"></div></div>
+    </section>
+
+    <section id="skins-screen" class="screen" aria-label="Skin collection" data-i18n-aria="collection">
+      <div class="screen-header"><button class="back-button" data-close-screen aria-label="Back" data-i18n-aria="back">‹</button><div><small data-i18n="collection">COLLECTION</small><h2 data-i18n="skins">SKINS</h2></div></div>
+      <div class="skin-wallet"><span><small data-i18n="coins">COINS</small>⬡ <b id="skin-coins">0</b></span><span><small data-i18n="vaultCoins">CRYSTALS</small>✦ <b id="skin-vault-coins">0</b></span></div>
+      <div class="collection-count"><strong id="collection-count">1 / 44</strong> <span data-i18n="unlocked">unlocked</span></div>
+      <div class="skin-actions"><button id="favorite-skin" class="secondary-button" data-i18n="favorite">FAVORITE</button><button id="random-skin" class="secondary-button" data-i18n="randomSkin">RANDOM SKIN</button><button id="random-favorites" class="secondary-button" data-i18n="randomFavorites">RANDOM FAVORITES</button></div>
+      <div id="skin-grid" class="skin-grid"></div>
+      <div class="chest-panel">
+        <div id="chest-visual" class="chest-visual"><span></span></div>
+        <div><h3 data-i18n="chest">SKIN CHEST</h3><p data-i18n="guaranteed">A new skin is guaranteed</p><strong><span id="chest-price">160</span> ⬡</strong></div>
+        <button id="chest-button" class="primary-button" data-i18n="openChest">OPEN</button>
+      </div>
+      <div class="chest-panel vault-chest-panel">
+        <div id="vault-chest-visual" class="chest-visual vault-chest"><span></span></div>
+        <div><h3 data-i18n="vaultChest">CRYSTAL CHEST</h3><p data-i18n="vaultGuaranteed">A rare new skin is guaranteed</p><strong><span id="vault-chest-price">12</span> ✦</strong></div>
+        <button id="vault-chest-button" class="primary-button" data-i18n="openChest">OPEN</button>
+      </div>
+      <button id="reward-button" class="ad-button"><span data-i18n="rewardCoins">+50 COINS</span><small data-i18n="ad">AD</small></button>
+      <section class="reward-history" aria-label="Reward history" data-i18n-aria="rewardHistory">
+        <div class="reward-history-head"><strong data-i18n="rewardHistory">REWARD HISTORY</strong><span>↘</span></div>
+        <ul id="reward-history-list"><li data-i18n="noRewards">No rewards yet</li></ul>
+      </section>
+    </section>
+
+    <section id="settings-screen" class="screen compact-screen" aria-label="Settings" data-i18n-aria="settings">
+      <div class="screen-header"><button class="back-button" data-close-screen aria-label="Back" data-i18n-aria="back">‹</button><div><small data-i18n="title">Neon Vaults</small><h2 data-i18n="settings">SETTINGS</h2></div></div>
+      <div class="settings-card">
+        <label><span data-i18n="music">Music</span><input id="music-toggle" type="checkbox"><i></i></label>
+        <label class="range-setting"><span data-i18n="musicVolume">Music volume</span><input id="music-volume" type="range" min="0" max="100" step="5"><output id="music-volume-value">65%</output></label>
+        <label><span data-i18n="sound">Sound</span><input id="sound-toggle" type="checkbox"><i></i></label>
+        <label class="range-setting"><span data-i18n="soundVolume">Sound volume</span><input id="sound-volume" type="range" min="0" max="100" step="5"><output id="sound-volume-value">80%</output></label>
+        <label class="select-setting"><span data-i18n="swipeSensitivity">Swipe sensitivity</span><select id="swipe-sensitivity"><option value="low" data-i18n="sensitivityLow">Low</option><option value="normal" data-i18n="sensitivityNormal">Normal</option><option value="high" data-i18n="sensitivityHigh">High</option></select></label>
+        <label><span data-i18n="reducedMotion">Reduced motion</span><input id="motion-toggle" type="checkbox"><i></i></label>
+        <label><span data-i18n="personalGhost">Personal ghost</span><input id="ghost-toggle" type="checkbox"><i></i></label>
+        <label><span data-i18n="haptics">Vibration</span><input id="haptics-toggle" type="checkbox"><i></i></label>
+        <div class="language-row"><span data-i18n="language">Language</span><div><button data-language="ru">Русский</button><button data-language="en">English</button></div></div>
+        <button id="settings-restart" class="secondary-button" data-i18n="restart">RESTART</button>
+      </div>
+    </section>
+
+    <div id="sector-intro" class="modal sector-intro hidden" role="dialog" aria-modal="true" aria-labelledby="sector-intro-name">
+      <div class="sector-intro-card">
+        <small id="sector-intro-kicker"></small>
+        <div class="sector-intro-glyph" aria-hidden="true"><i>✦</i><span></span></div>
+        <h2 id="sector-intro-name"></h2>
+        <p id="sector-intro-line"></p>
+        <strong id="sector-intro-signature"></strong>
+        <button id="sector-enter" class="primary-button" data-i18n="enterSector">ENTER SECTOR</button>
+      </div>
+    </div>
+
+    <div id="result-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="result-heading">
+      <div class="result-card">
+        <div id="sector-illustration" class="sector-illustration hidden" aria-hidden="true"><i>✦</i><span></span></div>
+        <div class="result-kicker" data-i18n="complete">LEVEL COMPLETE</div>
+        <h2 id="result-heading"><span data-i18n="level">LEVEL</span> <b id="result-level">1</b></h2>
+        <div id="result-cores" class="result-cores">◆◆◆</div>
+        <div id="result-route" class="result-route" data-i18n="routePlaceholder">ROUTE</div>
+        <div id="result-perfect" class="result-perfect hidden" data-i18n="perfectRoute">PERFECT ROUTE · ◆◆◆</div>
+        <div id="result-record" class="result-record hidden" data-i18n="newBest">NEW PERSONAL BEST</div>
+        <div class="result-stats"><div><small data-i18n="collected">Collected</small><strong id="result-dots">0/0</strong></div><div><small data-i18n="time">Time</small><strong id="result-time">0:00</strong></div><div><small data-i18n="coins">Coins</small><strong id="result-coins">+0 ⬡</strong></div><div><small id="result-vault-label" data-i18n="levelCrystal">Level reward</small><strong id="result-vault">+1 ✦</strong></div></div>
+        <div id="sector-reward" class="sector-reward hidden" data-i18n="sectorReward">+250 COINS &amp; 5 CRYSTALS</div>
+        <button id="next-button" class="primary-button" data-i18n="next">NEXT</button>
+        <button id="double-button" class="ad-button"><span data-i18n="double">×2 COINS</span><small data-i18n="ad">AD</small></button>
+        <button id="milestone-button" class="ad-button hidden"><span data-i18n="milestoneReward">+100 COINS &amp; 2 CRYSTALS</span><small data-i18n="ad">AD</small></button>
+        <button id="replay-button" class="text-button" data-i18n="replay">REPLAY</button>
+      </div>
+    </div>
+
+    <div id="rush-result-modal" class="modal rush-result-modal hidden" role="dialog" aria-modal="true" aria-labelledby="rush-result-title">
+      <div class="result-card rush-result-card"><div class="result-kicker" data-i18n="systemTrace">SYSTEM TRACE</div><h2 id="rush-result-title" data-i18n="rushComplete">RUN COMPLETE</h2><div id="rush-result-score" class="rush-result-score">0</div><div class="result-stats"><div><small data-i18n="rushRooms">ROOMS</small><strong id="rush-result-rooms">0</strong></div><div><small data-i18n="rushBest">BEST SCORE</small><strong id="rush-result-best">0</strong></div><div><small data-i18n="rushStreak">STREAK</small><strong id="rush-result-streak">0</strong></div><div><small data-i18n="rushSecurity">SECURITY</small><strong id="rush-result-security">01</strong></div></div><button id="rush-continue" class="ad-button"><span data-i18n="rushContinue">CONTINUE +12s</span><small data-i18n="ad">AD</small></button><button id="rush-again" class="primary-button" data-i18n="rushAgain">RUN AGAIN</button><button id="rush-back" class="text-button" data-i18n="back">BACK</button></div>
+    </div>
+
+    <div id="chest-reel-modal" class="modal hidden" role="dialog" aria-modal="true" aria-label="Syncing skin" data-i18n-aria="rolling">
+      <div class="reel-card"><small data-i18n="rolling">SYNCING SKIN</small><div class="reel-window"><div id="reel-track" class="reel-track"></div><i></i></div></div>
+    </div>
+
+    <div id="unlock-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="unlock-name">
+      <div class="unlock-card">
+        <small id="unlock-kicker" data-i18n="skinPreview">SKIN PREVIEW</small>
+        <div id="unlock-preview" class="unlock-preview"><canvas id="unlock-preview-canvas" width="280" height="200" aria-label="Skin preview" data-i18n-aria="skinPreview"></canvas><small id="unlock-preview-label"></small></div>
+        <h2 id="unlock-name"></h2><p id="unlock-rarity"></p>
+        <strong id="unlock-status" class="skin-preview-status"></strong>
+        <p id="unlock-source" class="skin-preview-source"></p>
+        <button id="unlock-equip" class="primary-button" data-i18n="equip">EQUIP</button>
+        <button id="unlock-close" class="text-button" data-i18n="back">BACK</button>
+      </div>
+    </div>
+
+  </div>
+  <script src="dist/game.js"></script>
+</body>
+</html>
